@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保险学课程学情分析与分组系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: "Microsoft YaHei", sans-serif; line-height: 1.6; margin: 20px; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; }
+        .question-section { flex: 1; min-width: 600px; }
+        .result-section { flex: 1; min-width: 600px; }
+        .section { margin: 30px 0; padding: 15px; border: 1px solid #eee; border-radius: 8px; }
+        .section-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 2px solid #3498db; }
+        .question-type { font-size: 14px; font-weight: bold; color: #2980b9; margin: 15px 0 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        table, th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .question { margin: 10px 0; padding-left: 10px; border-left: 3px solid #3498db; }
+        .option { margin: 8px 0; cursor: pointer; padding: 5px; border-radius: 4px; }
+        .option:hover { background-color: #f0f7ff; }
+        .option.selected { background-color: #e6f7ff; border: 1px solid #91d5ff; }
+        textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; min-height: 100px; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 20px 0; }
+        button:hover { background-color: #2980b9; }
+        .chart-container { width: 100%; height: 300px; margin: 20px 0; }
+        .result-card { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .group-container { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .group-card { flex: 1; min-width: 250px; background-color: #e8f4fd; padding: 15px; border-radius: 8px; border-left: 4px solid #3498db; }
+        .group-card h3 { margin-top: 0; color: #2c3e50; }
+        .student-list { max-height: 200px; overflow-y: auto; }
+        .batch-import { margin: 20px 0; padding: 15px; background-color: #f0f7ff; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>保险学课程学情分析与分组系统</h1>
+    
+    <!-- 批量数据导入区 -->
+    <div class="batch-import section">
+        <div class="section-title">批量结果导入（最多30份）</div>
+        <p>请输入学生ID和总分（格式：学号,总分，每行一条）</p>
+        <textarea id="batch-data" placeholder="例如：
+2023001,85
+2023002,72
+2023003,94
+..."></textarea>
+        <button id="import-data">导入数据并分组</button>
+        <p id="import-status"></p>
+    </div>
+
+    <div class="container">
+        <!-- 左侧：单个学生测评区 -->
+        <div class="question-section">
+            <!-- 一、专业基础维度 -->
+            <div class="section">
+                <div class="section-title">一、专业基础维度（30分）</div>
+                
+                <div class="question-type">1. 客观题（20分）</div>
+                <div class="question">
+                    <p>1. 新能源车险中“三电系统”不包含以下哪项？（单选）</p>
+                    <div class="options">
+                        <div class="option" data-question="p1-1" data-value="A">A.电池包</div>
+                        <div class="option" data-question="p1-1" data-value="B">B.电机</div>
+                        <div class="option" data-question="p1-1" data-value="C">C.电控</div>
+                        <div class="option" data-question="p1-1" data-value="D">D.变速箱</div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <p>2. 损失补偿原则的核心是（单选）</p>
+                    <div class="options">
+                        <div class="option" data-question="p1-2" data-value="A">A.足额赔付</div>
+                        <div class="option" data-question="p1-2" data-value="B">B.禁止不当得利</div>
+                        <div class="option" data-question="p1-2" data-value="C">C.按需赔付</div>
+                        <div class="option" data-question="p1-2" data-value="D">D.快速赔付</div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <p>3. 以下哪些属于新能源车险理赔的责任免除情形？（多选）</p>
+                    <div class="options">
+                        <div class="option" data-question="p1-3" data-value="A">A.三电系统自然衰减</div>
+                        <div class="option" data-question="p1-3" data-value="B">B.碰撞导致电池损坏</div>
+                        <div class="option" data-question="p1-3" data-value="C">C.未按规定保养导致电机故障</div>
+                        <div class="option" data-question="p1-3" data-value="D">D.地震引发的电池起火</div>
+                    </div>
+                </div>
+
+                <div class="question-type">2. 主观题（10分）</div>
+                <div class="question">
+                    <p>题干：简述传统车险与新能源车险在理赔流程、责任认定、风险关注点上的3点核心差异。</p>
+                    <textarea id="subjective-p1" placeholder="请输入答案..."></textarea>
+                </div>
+            </div>
+
+            <!-- 二、跨学科素养维度 -->
+            <div class="section">
+                <div class="section-title">二、跨学科素养维度（25分）</div>
+                
+                <div class="question-type">1. 学科认知题（15分）</div>
+                <div class="question">
+                    <p>1. 新能源汽车电池包碰撞损坏的常见类型不包括（单选）</p>
+                    <div class="options">
+                        <div class="option" data-question="p2-1" data-value="A">A.外壳变形</div>
+                        <div class="option" data-question="p2-1" data-value="B">B.电芯短路</div>
+                        <div class="option" data-question="p2-1" data-value="C">C.机油泄漏</div>
+                        <div class="option" data-question="p2-1" data-value="D">D.冷却系统故障</div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <p>2. 理赔数据中的“结案周期”是衡量理赔服务效率的核心指标之一（判断）</p>
+                    <div class="options">
+                        <div class="option" data-question="p2-2" data-value="对">对</div>
+                        <div class="option" data-question="p2-2" data-value="错">错</div>
+                    </div>
+                </div>
+
+                <div class="question-type">2. 应用意愿题（10分）</div>
+                <div class="question">
+                    <p>题干1：你更愿意参与以下哪类跨学科任务？（可多选）</p>
+                    <div class="options">
+                        <div class="option" data-question="p2-3" data-value="A">A.保险条款+法律判例的责任认定</div>
+                        <div class="option" data-question="p2-3" data-value="B">B.保险理赔+车辆技术的风险分析</div>
+                        <div class="option" data-question="p2-3" data-value="C">C.保险服务+数据科学的方案设计</div>
+                        <div class="option" data-question="p2-3" data-value="D">D.保险场景+环境科学的低碳举措</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 三、实践能力维度 -->
+            <div class="section">
+                <div class="section-title">三、实践能力维度（25分）</div>
+                
+                <div class="question">
+                    <p>案例分析题：某车主投保新能源车险后，车辆碰撞导致电池包外壳变形、电芯无损坏，车主主张全额更换电池包，保险公司认为仅需维修外壳。请列出保险公司的理赔责任认定步骤，并说明依据。</p>
+                    <textarea id="subjective-p3" placeholder="请输入答案..."></textarea>
+                </div>
+            </div>
+
+            <!-- 四、学习风格维度 -->
+            <div class="section">
+                <div class="section-title">四、学习风格维度（20分）</div>
+                <div class="question">
+                    <p>题干：以下描述符合你的学习习惯请选择“是”，不符合请选择“否”</p>
+                    <div class="options">
+                        <div class="option" data-question="p4-1" data-value="是">1. 偏好通过案例视频、动画理解理赔流程（视觉型）</div>
+                        <div class="option" data-question="p4-2" data-value="是">2. 喜欢听教师讲解、小组讨论梳理保险条款（听觉型）</div>
+                        <div class="option" data-question="p4-3" data-value="是">3. 擅长通过阅读条款文本记忆专业内容（阅读型）</div>
+                        <div class="option" data-question="p4-4" data-value="是">4. 倾向通过实操模拟掌握理赔技能（动觉型）</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 五、思政认知维度 -->
+            <div class="section">
+                <div class="section-title">五、思政认知维度（10分）</div>
+                <div class="question">
+                    <p>1. 新能源车险理赔中，优先保障农村车主理赔便捷性，体现的保险思政价值是（单选）</p>
+                    <div class="options">
+                        <div class="option" data-question="p5-1" data-value="A">A.合规经营</div>
+                        <div class="option" data-question="p5-1" data-value="B">B.民生保障</div>
+                        <div class="option" data-question="p5-1" data-value="C">C.技术创新</div>
+                        <div class="option" data-question="p5-1" data-value="D">D.行业竞争</div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="generate-result">生成个人测评结果</button>
+        </div>
+
+        <!-- 右侧：结果与分组展示区 -->
+        <div class="result-section">
+            <!-- 个人结果可视化 -->
+            <div class="section">
+                <div class="section-title">个人测评结果</div>
+                
+                <div class="chart-container">
+                    <canvas id="radar-chart"></canvas>
+                </div>
+                
+                <div class="result-card">
+                    <h3>个人推荐分组</h3>
+                    <p id="personal-group">请完成测评并点击生成结果按钮</p>
+                </div>
+            </div>
+
+            <!-- 批量分组结果 -->
+            <div class="section">
+                <div class="section-title">4个小组分组结果</div>
+                
+                <div class="group-container">
+                    <div class="group-card">
+                        <h3>1组：创新研究组</h3>
+                        <p>特点：综合能力突出，跨学科整合能力强</p>
+                        <div class="student-list" id="group1">暂无数据</div>
+                    </div>
+                    
+                    <div class="group-card">
+                        <h3>2组：技术分析组</h3>
+                        <p>特点：专业基础扎实，技术理解能力强</p>
+                        <div class="student-list" id="group2">暂无数据</div>
+                    </div>
+                    
+                    <div class="group-card">
+                        <h3>3组：应用实践组</h3>
+                        <p>特点：实践能力较强，侧重应用操作</p>
+                        <div class="student-list" id="group3">暂无数据</div>
+                    </div>
+                    
+                    <div class="group-card">
+                        <h3>4组：基础提升组</h3>
+                        <p>特点：需强化基础，侧重知识巩固</p>
+                        <div class="student-list" id="group4">暂无数据</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="group-distribution"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 存储所有学生数据
+        let allStudents = [];
+        // 存储用户答案
+        const userAnswers = {};
+        
+        // 选项点击事件
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question');
+                const value = this.getAttribute('data-value');
+                
+                // 单选处理
+                if (!['p1-3', 'p2-3'].includes(questionId)) {
+                    document.querySelectorAll(`.option[data-question="${questionId}"]`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    userAnswers[questionId] = value;
+                } 
+                // 多选处理
+                else {
+                    this.classList.toggle('selected');
+                    if (!userAnswers[questionId]) userAnswers[questionId] = [];
+                    if (this.classList.contains('selected')) {
+                        userAnswers[questionId].push(value);
+                    } else {
+                        userAnswers[questionId] = userAnswers[questionId].filter(v => v !== value);
+                    }
+                }
+            });
+        });
+        
+        // 生成个人结果按钮事件
+        document.getElementById('generate-result').addEventListener('click', function() {
+            // 收集主观题答案
+            userAnswers['subjective-p1'] = document.getElementById('subjective-p1').value;
+            userAnswers['subjective-p3'] = document.getElementById('subjective-p3').value;
+            
+            // 计算得分
+            const scores = calculateScores();
+            
+            // 生成图表
+            generateRadarChart(scores.dimensions);
+            
+            // 生成个人分组建议
+            document.getElementById('personal-group').textContent = getPersonalGroupSuggestion(scores.total);
+        });
+        
+        // 导入数据并分组按钮事件
+        document.getElementById('import-data').addEventListener('click', function() {
+            const data = document.getElementById('batch-data').value.trim();
+            if (!data) {
+                document.getElementById('import-status').textContent = '请输入数据后再导入';
+                return;
+            }
+            
+            // 解析数据
+            const lines = data.split('\n');
+            allStudents = [];
+            
+            lines.forEach(line => {
+                const [id, score] = line.trim().split(',');
+                if (id && score) {
+                    allStudents.push({
+                        id: id.trim(),
+                        score: parseFloat(score.trim())
+                    });
+                }
+            });
+            
+            // 验证数据
+            if (allStudents.length === 0) {
+                document.getElementById('import-status').textContent = '未解析到有效数据，请检查格式';
+                return;
+            }
+            
+            if (allStudents.length > 30) {
+                document.getElementById('import-status').textContent = `数据量超过30条，已截取前30条`;
+                allStudents = allStudents.slice(0, 30);
+            } else {
+                document.getElementById('import-status').textContent = `成功导入${allStudents.length}条数据`;
+            }
+            
+            // 按分数排序
+            allStudents.sort((a, b) => b.score - a.score);
+            
+            // 分为4个小组
+            const groups = splitIntoGroups(allStudents);
+            
+            // 显示分组结果
+            displayGroups(groups);
+            
+            // 生成分组分布图表
+            generateGroupDistributionChart(groups);
+        });
+        
+        // 计算得分（模拟）
+        function calculateScores() {
+            // 实际应用中应根据标准答案和评分标准计算
+            return {
+                total: 60 + Math.random() * 40, // 60-100随机分数
+                dimensions: {
+                    专业基础: 15 + Math.random() * 15,
+                    跨学科素养: 12 + Math.random() * 13,
+                    实践能力: 12 + Math.random() * 13,
+                    学习风格适配: 10 + Math.random() * 10,
+                    思政认知: 5 + Math.random() * 5
+                }
+            };
+        }
+        
+        // 分为4个小组
+        function splitIntoGroups(students) {
+            const total = students.length;
+            // 按比例分配（1组20%，2组30%，3组30%，4组20%）
+            const group1Size = Math.ceil(total * 0.2);
+            const group2Size = Math.ceil(total * 0.3);
+            const group3Size = Math.ceil(total * 0.3);
+            const group4Size = total - group1Size - group2Size - group3Size;
+            
+            return {
+                group1: students.slice(0, group1Size),
+                group2: students.slice(group1Size, group1Size + group2Size),
+                group3: students.slice(group1Size + group2Size, group1Size + group2Size + group3Size),
+                group4: students.slice(group1Size + group2Size + group3Size)
+            };
+        }
+        
+        // 显示分组结果
+        function displayGroups(groups) {
+            for (let i = 1; i <= 4; i++) {
+                const groupElement = document.getElementById(`group${i}`);
+                const students = groups[`group${i}`];
+                
+                if (students.length === 0) {
+                    groupElement.innerHTML = '暂无学生';
+                    continue;
+                }
+                
+                let html = '';
+                students.forEach(student => {
+                    html += `<div>${student.id}（${student.score}分）</div>`;
+                });
+                groupElement.innerHTML = html;
+            }
+        }
+        
+        // 生成雷达图
+        function generateRadarChart(data) {
+            const ctx = document.getElementById('radar-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        label: '维度得分',
+                        data: Object.values(data),
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                        pointBorderColor: '#fff'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 30,
+                            ticks: { stepSize: 5 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 生成分组分布图表
+        function generateGroupDistributionChart(groups) {
+            const ctx = document.getElementById('group-distribution').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['创新研究组', '技术分析组', '应用实践组', '基础提升组'],
+                    datasets: [{
+                        label: '学生数量',
+                        data: [
+                            groups.group1.length,
+                            groups.group2.length,
+                            groups.group3.length,
+                            groups.group4.length
+                        ],
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(241, 196, 15, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '各组学生数量分布'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 个人分组建议
+        function getPersonalGroupSuggestion(totalScore) {
+            if (totalScore >= 90) return '1组：创新研究组（综合能力突出，跨学科整合能力强）';
+            else if (totalScore >= 80) return '2组：技术分析组（专业基础扎实，技术理解能力强）';
+            else if (totalScore >= 70) return '3组：应用实践组（实践能力较强，侧重应用操作）';
+            else return '4组：基础提升组（需强化基础，侧重知识巩固）';
+        }
+    </script>
+</body>
+</html>
